@@ -19,8 +19,8 @@ export default class App {
             this.settings!.set('nux_completed', completed);
         });
 
-        this.state!.set('appState', 'LOADING');
         this.state!.set('nuxCompleted', this.settings!.get('nux_completed'));
+        this.state!.set('appState', 'LOADING');
         this.state!.set('alternatives', {});
         this.state!.set('volume', 0);
         this.state!.set('listening', false);

@@ -161,11 +161,7 @@ export default abstract class BaseRunner {
 
     kill() {
         if (this.clientProcess) {
-            // the tree-kill library doesn't seem reliable across platforms, so try both the native nodejs
-            // pkill and the native library
-            const pid = this.clientProcess.pid;
-            this.clientProcess.kill();
-            kill(pid);
+            kill(this.clientProcess!.pid);
         }
     }
 }

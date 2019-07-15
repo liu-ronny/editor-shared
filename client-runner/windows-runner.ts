@@ -10,10 +10,10 @@ export default class WindowsRunner extends BaseRunner {
     }
 
     jdkUrl() {
-        return 'https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_windows-x64_bin.zip';
+        return `https://cdn.serenade.ai/jdk/jdk-windows-${this.jdkVersion()}.tar.gz`;
     }
 
     jdkVersion() {
-        return 'jdk-11.0.2';
+        return '86526c4bd2c90a6bafbd1032ec0bf3b9';
     }
 }
