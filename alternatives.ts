@@ -63,12 +63,8 @@ export default abstract class Alternatives {
 
                 return `
     <a class="alternative-row ${rowClass} ${newline ? 'has-newline' : ''}" data-index="${n}">
-        <div class="alternative-row-inner">
-            <div class="alternative-number">
-                <div class="alternative-number-inner">${n}</div>
-            </div>
-            <div class="alternative-description">${description}</div>
-        </div>
+        <div class="alternative-number">${n}</div>
+        <div class="alternative-description">${description}</div>
     </a>`;
             })
             .filter(e => e !== null);

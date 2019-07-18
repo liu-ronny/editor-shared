@@ -355,66 +355,55 @@ $font-size-tiny: 13px;
                 background: inherit;
             }
 
-            .alternative-row-inner {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-
-                .alternative-number {
-                    $size: 16px;
-
-                    border: solid 2px var(--text-color);
-                    border-radius: 50%;
-                    color: var(--text-color);
-                    font-weight: 600;
-                    margin-right: $space-small;
-                    min-height: $size;
-                    min-width: $size;
-                    padding: 4px;
-                    text-align: center;
-
-                    .alternative-number-inner {
-                        // required to center the number in the container
-                        line-height: $size - 1px;
-                    }
-                }
-
-                .alternative-description {
-                    // compensate for the (line-height - 1px) in the number
-                    margin-top: -1px;
-                    flex-grow: 2;
-                    overflow: auto;
-
-                    pre {
-                        white-space: pre-wrap;
-                        font-size: $font-size;
-                    }
-
-                    pre.inline {
-                        display: inline;
-                        margin: 0;
-                        margin-left: $space-tiny;
-                    }
-
-                    .alternative-code {
-                        display: block;
-                        margin-top: $space-small;
-
-                        pre {
-                            margin: 0;
-                        }
-                    }
-                }
-            }
-        }
-
-        .alternative-row.has-newline {
             .alternative-number {
-                align-self: flex-start;
+                border: solid 2px var(--text-color);
+                border-radius: 50%;
+                color: var(--text-color);
+                display: inline-block;
+                font-size: $font-size;
+                font-weight: 600;
+                line-height: 15px;
+                margin-right: $space-small;
+                padding: 4px;
+                text-align: center;
+                vertical-align: middle;
+                width: 16px;
+                height: 16px;
+            }
+
+            &.has-newline .alternative-number {
+                margin-top: -4px;
+                vertical-align: top;
             }
 
             .alternative-description {
-                margin-top: 2px;
+                display: inline-block;
+                font-size: $font-size;
+                margin-top: -1px;
+                min-height: 16px;
+                vertical-align: middle;
+                width: calc(100% - 44px);
+
+                pre {
+                    background: none;
+                    white-space: pre-wrap;
+                    font-size: $font-size;
+                    word-break: keep-all;
+                }
+
+                pre.inline {
+                    display: inline;
+                    margin: 0;
+                }
+
+                .alternative-code {
+                    display: block;
+                    margin-top: $space-small;
+
+                    pre {
+                        margin: 0;
+                    }
+                }
             }
         }
     }
