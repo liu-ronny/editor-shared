@@ -49,7 +49,8 @@ export default abstract class AlternativesPanel {
     <div class="nux-progress success-color-light"></div>
     <h2 class="nux-heading"></h2>
     <div class="nux-body"></div>
-    <button class="btn btn-nux-next">Next</button>
+    <button class="btn btn-nux-back hidden">&lsaquo; Back</button>
+    <button class="btn btn-nux-next">Next &rsaquo;</button>
   </div>
   <div class="alternatives-list-container hidden">
     <div class="alternatives-valid">

@@ -339,15 +339,30 @@ export default abstract class Alternatives {
                 this.setState('alternatives', {suggestions: true});
             }
         });
+
+        this.$('.btn-nux-back')!.addEventListener('click', () => {
+            const stepIndex = this.getState('nuxStep');
+            if (stepIndex > 0) {
+                this.setState('nuxStep', stepIndex - 1);
+            }
+        });
     }
 
     onNuxStep(stepIndex: number, _previous: number) {
         const steps = nux.steps();
         const step = steps[stepIndex];
-        this.$('.btn-nux-next')!.innerHTML = stepIndex === steps.length - 1 ? 'Close' : 'Next';
+        this.$('.btn-nux-next')!.innerHTML = stepIndex === steps.length - 1 ? 'Close' : 'Next &rsaquo;';
         this.$('.nux-progress')!.style.width = Math.ceil((stepIndex / (steps.length - 1)) * 100) + '%';
         this.$('.nux-heading')!.innerHTML = step.title;
         this.$('.nux-body')!.innerHTML = step.body;
+
+        const $back = this.$('.btn-nux-back')!;
+        if (stepIndex == 0) {
+            $back.classList.add('hidden');
+        }
+        else {
+            $back.classList.remove('hidden');
+        }
     }
 
     onStatus(text: string, _previous: string) {

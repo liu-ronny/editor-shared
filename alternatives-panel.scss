@@ -290,9 +290,13 @@ $font-size-tiny: 13px;
         .nux-body {
             font-size: $font-size-small;
             margin-top: $space-tiny;
+
+            a {
+                text-decoration: underline;
+            }
         }
 
-        .btn-nux-next {
+        .btn-nux-back, .btn-nux-next {
             font-size: $font-size-tiny !important;
             margin-top: $space-small;
         }
@@ -380,6 +384,11 @@ $font-size-tiny: 13px;
                     margin-top: -1px;
                     flex-grow: 2;
                     overflow: auto;
+
+                    pre {
+                        white-space: pre-wrap;
+                        font-size: $font-size;
+                    }
 
                     pre.inline {
                         display: inline;
