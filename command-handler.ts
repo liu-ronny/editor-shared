@@ -13,6 +13,7 @@ export default interface CommandHandler {
     COMMAND_TYPE_OPEN_FILE(data: any): Promise<any>;
     COMMAND_TYPE_PASTE(data: any): Promise<any>;
     COMMAND_TYPE_PAUSE(_data: any): Promise<any>;
+    COMMAND_TYPE_PING(_data: any): Promise<any>;
     COMMAND_TYPE_PREVIOUS_TAB(_data: any): Promise<any>;
     COMMAND_TYPE_REDO(_data: any): Promise<any>;
     COMMAND_TYPE_SAVE(_data: any): Promise<any>;

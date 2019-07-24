@@ -1,16 +1,36 @@
 import * as http from 'http';
+import * as os from 'os';
 
+import ClientRunner from './client-runner/base-runner';
 import CommandHandler from './command-handler';
 import StateManager from './state-manager';
 
 export default class IPC {
+    protected platform: string;
     protected server?: http.Server;
     protected state: StateManager;
     protected commandHandler: CommandHandler;
+    protected clientRunner: ClientRunner;
 
-    constructor(state: StateManager, commandHandler: CommandHandler) {
+    constructor(state: StateManager, commandHandler: CommandHandler, clientRunner: ClientRunner, platform: string) {
         this.state = state;
         this.commandHandler = commandHandler;
+        this.clientRunner = clientRunner;
+        this.platform = platform;
+    }
+
+    private os() {
+        if (process.platform == 'darwin') {
+            return 'MacOS';
+        }
+        else if (process.platform == 'win32') {
+            return 'Windows';
+        }
+        else if (process.platform == 'linux') {
+            return 'Linux';
+        }
+
+        return process.platform;
     }
 
     beforeHandle() {
@@ -46,7 +66,12 @@ export default class IPC {
             port: 17373,
             path: '/',
             method: 'POST',
-            headers: {'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(json)}
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(json),
+                'User-Agent': `SerenadeClient/${this.clientRunner.clientVersion()} ` +
+                    `(${this.os()} ${os.release()}; ${this.platform})`
+            }
         });
 
         request.write(json);
@@ -69,7 +94,15 @@ export default class IPC {
             });
 
             request.on('end', async () => {
-                let parseResponse = JSON.parse(body);
+                let parseResponse = '';
+                try {
+                    parseResponse = JSON.parse(body);
+                }
+                catch (e) {
+                    response.end('');
+                    return;
+                }
+
                 let result = await this.handle(parseResponse);
                 if (!result) {
                     result = {success: true};
