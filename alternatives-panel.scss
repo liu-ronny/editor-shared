@@ -12,7 +12,7 @@ $font-size-tiny: 13px;
 
 @keyframes flicker {
     0% {
-        opacity: 0.5;
+        opacity: 1;
     }
 
     50% {
@@ -20,7 +20,7 @@ $font-size-tiny: 13px;
     }
 
     100% {
-        opacity: 0.5;
+        opacity: 1;
     }
 }
 
@@ -119,12 +119,12 @@ $font-size-tiny: 13px;
 
         .listening-indicator {
             animation: flicker 3s ease-in-out infinite;
-            background: var(--button-background-color);
-            border-radius: 8px;
-            height: 8px;
+            background: var(--error-color);
+            border-radius: 10px;
+            height: 10px;
             margin-left: $space-small;
             margin-top: $space-tiny;
-            width: 8px;
+            width: 10px;
         }
 
         .alternatives-status {
@@ -349,6 +349,10 @@ $font-size-tiny: 13px;
 
             &.suggestion {
                 color: var(--text-color-disabled) !important;
+            }
+
+            &.invalid:hover, &.suggestion:hover {
+                cursor: default;
             }
 
             &.suggestion:hover {
