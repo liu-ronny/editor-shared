@@ -291,7 +291,6 @@ export default abstract class Alternatives {
     onListening(on: boolean, _previous: boolean) {
         this.$('.btn-listen')!.innerHTML = on ? 'Pause' : 'Listen';
         if (!on) {
-            this.$('.listening-indicator')!.classList.add('hidden');
             this.setState('alternatives', {suggestions: true});
         }
     }
@@ -363,6 +362,9 @@ export default abstract class Alternatives {
         this.$('.alternatives-status')!.innerHTML = text;
         if (text == 'Listening') {
             this.$('.listening-indicator')!.classList.remove('hidden');
+        }
+        else {
+            this.$('.listening-indicator')!.classList.add('hidden');
         }
     }
 

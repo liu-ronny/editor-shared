@@ -14,6 +14,6 @@ export default class MacRunner extends BaseRunner {
     }
 
     jdkVersion() {
-        return 'fa019a048911b0fd95c7bac642244f34';
+        return 'b62c1cb2e6456a5590194053b063ee21';
     }
 }
