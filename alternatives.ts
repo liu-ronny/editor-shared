@@ -266,7 +266,7 @@ export default abstract class Alternatives {
             $login!.classList.add('hidden');
             $volume!.classList.remove('hidden');
             $list!.classList.remove('hidden');
-            this.setState('status', 'Paused');
+            this.setState('status', 'Not connected');
 
             if (!this.getState('nuxCompleted')) {
                 $nux!.classList.remove('hidden');
@@ -290,11 +290,9 @@ export default abstract class Alternatives {
 
     onListening(on: boolean, _previous: boolean) {
         this.$('.btn-listen')!.innerHTML = on ? 'Pause' : 'Listen';
-        if (on) {
-            this.$('.listening-indicator')!.classList.remove('hidden');
-        }
-        else {
+        if (!on) {
             this.$('.listening-indicator')!.classList.add('hidden');
+            this.setState('alternatives', {suggestions: true});
         }
     }
 
@@ -363,6 +361,9 @@ export default abstract class Alternatives {
 
     onStatus(text: string, _previous: string) {
         this.$('.alternatives-status')!.innerHTML = text;
+        if (text == 'Listening') {
+            this.$('.listening-indicator')!.classList.remove('hidden');
+        }
     }
 
     onVolume(volume: number, _previous: number) {

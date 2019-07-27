@@ -24,7 +24,7 @@ export default class App {
         this.state!.set('alternatives', {});
         this.state!.set('volume', 0);
         this.state!.set('listening', false);
-        this.state!.set('status', 'Paused');
+        this.state!.set('status', 'Not connected');
         this.ipc!.start();
 
         this.clientRunner!.installAndRun(() => {
