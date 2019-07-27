@@ -14,6 +14,6 @@ export default class WindowsRunner extends BaseRunner {
     }
 
     jdkVersion() {
-        return '86526c4bd2c90a6bafbd1032ec0bf3b9';
+        return '826e79539e8bbcc338c46e32ce3dfbb6';
     }
 }
