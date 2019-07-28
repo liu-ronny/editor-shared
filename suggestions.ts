@@ -79,7 +79,7 @@ function suggestions(): string[] {
         'add try',
         'add print hi',
         'add function underscore get',
-        'add parent class exception',
+        'add parent exception',
         'add call say with argument message'
     ];
 }

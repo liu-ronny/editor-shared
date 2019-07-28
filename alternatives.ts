@@ -280,11 +280,13 @@ export default abstract class Alternatives {
             return;
         }
 
-        const rows = this.$$('.alternatives-valid-list .alternative-row:not(.invalid)');
-        if (index < rows.length) {
+        const $rows = this.$$('.alternatives-valid-list .alternative-row:not(.invalid)');
+        if (index < $rows.length) {
             this.$('.alternatives-valid-header')!.innerHTML = 'Ran command';
-            rows[index].classList.add('success-color-light');
-            rows[index].classList.add('highlighted');
+            const $row = $rows[index];
+            $row.classList.add('success-color-light');
+            $row.classList.add('highlighted');
+            $row.querySelector('.alternative-number')!.innerHTML = '<i class="fas fa-check"></i>';
         }
     }
 

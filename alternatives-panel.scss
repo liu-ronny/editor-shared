@@ -382,6 +382,10 @@ $font-size-tiny: 13px;
                 vertical-align: middle;
                 width: 16px;
                 height: 16px;
+
+                .fas {
+                    font-size: 12px;
+                }
             }
 
             &.has-newline .alternative-number {
