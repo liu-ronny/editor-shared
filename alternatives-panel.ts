@@ -4,7 +4,8 @@ export default abstract class AlternativesPanel {
     html(): string {
         return `
 <div class="alternatives-panel hidden">
-  <div class="success-color"></div>
+  <div class="success-color-placeholder"></div>
+  <div class="error-color-placeholder"></div>
   <div class="alternatives-logo-container">
     <div class="alternatives-logo">${this.logo()}</div>
     <div class="hidden listening-indicator"></div>
@@ -42,11 +43,11 @@ export default abstract class AlternativesPanel {
     </div>
     </button>
     <div class="alternatives-bar-container">
-      <div class="alternatives-bar success-color-light"></div>
+      <div class="alternatives-bar success-color-4"></div>
     </div>
   </div>
   <div class="nux hidden">
-    <div class="nux-progress success-color-light"></div>
+    <div class="nux-progress success-color-4"></div>
     <h2 class="nux-heading"></h2>
     <div class="nux-body"></div>
     <button class="btn btn-nux-back hidden">&lsaquo; Back</button>

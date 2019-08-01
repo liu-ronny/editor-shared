@@ -38,14 +38,20 @@ $font-size-tiny: 13px;
     display: none !important;
 }
 
+.success-color-placeholder {
+    background-color: var(--success-color);
+    height: 1px;
+    width: 1px;
+}
+
+.error-color-placeholder {
+    background-color: var(--error-color);
+    height: 1px;
+    width: 1px;
+}
+
 .alternatives-panel {
     color: var(--text-color);
-
-    .success-color {
-        background-color: var(--success-color);
-        height: 1px;
-        width: 1px;
-    }
 
     h1,
     h2,
@@ -418,6 +424,7 @@ $font-size-tiny: 13px;
                     margin-top: $space-small;
 
                     pre {
+                        padding: 0;
                         margin: 0;
                     }
                 }

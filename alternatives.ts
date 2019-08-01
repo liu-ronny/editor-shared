@@ -1,3 +1,4 @@
+import {DiffRange} from './diff';
 import * as nux from './nux';
 import * as suggestions from './suggestions';
 
@@ -11,6 +12,8 @@ export default abstract class Alternatives {
     abstract setupLoginEvents(): void;
     abstract setupRegisterEvents(): void;
     abstract showDocsPanel(url: string): void;
+
+    successColorLight = 'success-color-4';
 
     $(e: string): HTMLElement|null {
         return document.querySelector(e);
@@ -70,6 +73,12 @@ export default abstract class Alternatives {
             .filter(e => e !== null);
     }
 
+    createStyleRule(rule: string) {
+        let style = document.createElement('style');
+        this.addComputedStyleElement(style);
+        (style.sheet as CSSStyleSheet).insertRule(rule, 0);
+    }
+
     escapeText(s: string): string {
         if (!s) {
             return s;
@@ -80,6 +89,39 @@ export default abstract class Alternatives {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&apos;');
+    }
+
+    eventHandlers(): {[event: string]: any} {
+        return {
+            alternatives: this.onAlternatives,
+            appState: this.onAppState,
+            highlightedAlternative: this.onHighlightedAlternative,
+            highlightedRanges: this.onHighlightedRanges,
+            listening: this.onListening,
+            loading: this.onLoading,
+            loginError: this.onLoginError,
+            nuxCompleted: this.onNuxCompleted,
+            nuxStep: this.onNuxStep,
+            'status': this.onStatus,
+            volume: this.onVolume
+        };
+    }
+
+    // vscode supplies theme variables via CSS4 variables, which aren't compatible with SCSS color functions (yet).
+    // some are supplied as hex values, and others are supplied as RGB triples, so we can't rely on parsing those.
+    // so, we create elements with the desired colors, use getComputedStyle to return RGB, and manually perform
+    // the color manipulations. this is kind of crazy.
+    extractColor(className: string) {
+        const rgbSuccess: any =
+            ((getComputedStyle(this.$(`.${className}-placeholder`)!) as any)['background-color'] as string)
+                .match(/\d+/g);
+        this.$(`.${className}-placeholder`)!.style.display = 'none';
+
+        let color = `${rgbSuccess[0]}, ${rgbSuccess[1]}, ${rgbSuccess[2]}`;
+        this.setState('setColor', {name: className, value: color});
+        for (let i = 1; i <= 10; i++) {
+            this.createStyleRule(`.${className}-${i} { background: rgba(${color}, ${i / 10.}); }`);
+        }
     }
 
     initialize() {
@@ -151,35 +193,21 @@ export default abstract class Alternatives {
         this.$('.alternatives-valid-list')!.addEventListener('mouseover', (e: any) => {
             const $row = e.target.closest('.alternative-row');
             if ($row != null) {
-                $row.classList.add('success-color-light');
+                $row.classList.add(this.successColorLight);
             }
         });
 
         this.$('.alternatives-valid-list')!.addEventListener('mouseout', (e: any) => {
             const $row = e.target.closest('.alternative-row');
             if ($row != null && !$row.classList.contains('highlighted')) {
-                $row.classList.remove('success-color-light');
+                $row.classList.remove(this.successColorLight);
             }
         });
 
         this.setupLoginEvents();
         this.setupRegisterEvents();
-
-        // vscode supplies theme variables via CSS4 variables, which aren't compatible with SCSS color functions (yet).
-        // some are supplied as hex values, and others are supplied as RGB triples, so we can't rely on parsing those.
-        // so, we create elements with the desired colors, use getComputedStyle to return RGB, and manually perform
-        // the color manipulations. this is kind of crazy.
-        const rgbSuccess: any =
-            ((getComputedStyle(this.$('.success-color')!) as any)['background-color'] as string).match(/\d+/g);
-        this.$('.success-color')!.style.display = 'none';
-
-        let style = document.createElement('style');
-        this.addComputedStyleElement(style);
-        (style.sheet as CSSStyleSheet)
-            .insertRule(
-                `.success-color-light { background: rgba(${rgbSuccess[0]}, ${rgbSuccess[1]}, ${rgbSuccess[2]}, 0.4); }`,
-                0
-            );
+        this.extractColor('success-color');
+        this.extractColor('error-color');
     }
 
     login() {
@@ -274,7 +302,7 @@ export default abstract class Alternatives {
         }
     }
 
-    onHighlighted(index: number, _previous: number) {
+    onHighlightedAlternative(index: number, _previous: number) {
         const alternatives = this.getState('alternatives');
         if (!('alternatives' in alternatives)) {
             return;
@@ -284,10 +312,13 @@ export default abstract class Alternatives {
         if (index < $rows.length) {
             this.$('.alternatives-valid-header')!.innerHTML = 'Ran command';
             const $row = $rows[index];
-            $row.classList.add('success-color-light');
+            $row.classList.add(this.successColorLight);
             $row.classList.add('highlighted');
             $row.querySelector('.alternative-number')!.innerHTML = '<i class="fas fa-check"></i>';
         }
+    }
+
+    onHighlightedRanges(_ranges: DiffRange[], _previous: DiffRange[]) {
     }
 
     onListening(on: boolean, _previous: boolean) {
