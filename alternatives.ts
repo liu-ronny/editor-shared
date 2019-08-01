@@ -95,6 +95,7 @@ export default abstract class Alternatives {
         return {
             alternatives: this.onAlternatives,
             appState: this.onAppState,
+            clientRunning: this.onClientRunning,
             highlightedAlternative: this.onHighlightedAlternative,
             highlightedRanges: this.onHighlightedRanges,
             listening: this.onListening,
@@ -302,6 +303,18 @@ export default abstract class Alternatives {
         }
     }
 
+    onClientRunning(running: boolean, _previous: boolean) {
+        const $listen = this.$('.btn-listen')!;
+        if (running) {
+            $listen.removeAttribute('disabled');
+            $listen.innerHTML = 'Listen';
+        }
+        else {
+            $listen.setAttribute('disabled', 'true');
+            $listen.innerHTML = 'Loading...';
+        }
+    }
+
     onHighlightedAlternative(index: number, _previous: number) {
         const alternatives = this.getState('alternatives');
         if (!('alternatives' in alternatives)) {
@@ -322,8 +335,11 @@ export default abstract class Alternatives {
     }
 
     onListening(on: boolean, _previous: boolean) {
-        this.$('.btn-listen')!.innerHTML = on ? 'Pause' : 'Listen';
-        if (!on) {
+        if (this.getState('clientRunning')) {
+            this.$('.btn-listen')!.innerHTML = on ? 'Pause' : 'Listen';
+        }
+
+        if (on) {
             this.setState('alternatives', {suggestions: true});
         }
     }

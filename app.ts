@@ -20,12 +20,14 @@ export default class App {
         });
 
         this.state!.set('nuxCompleted', this.settings!.get('nux_completed'));
+        this.state!.set('clientRunning', false);
         this.state!.set('appState', 'LOADING');
         this.state!.set('alternatives', {});
         this.state!.set('volume', 0);
         this.state!.set('listening', false);
         this.state!.set('status', 'Not connected');
         this.ipc!.start();
+        this.ipc!.pingClientUntilRunning();
 
         this.clientRunner!.installAndRun(() => {
             const token = this.settings!.get('token');

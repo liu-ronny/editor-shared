@@ -57,25 +57,58 @@ export default class IPC {
         return result;
     }
 
-    send(message: any, data: any = {}) {
+    send(
+        message: any,
+        data: any = {},
+        onResponse: ((response: any) => void) = (_response: any) => {},
+        onError: ((error: any) => void) = (_error: any) => {}
+    ) {
         data.type = message;
         let json = JSON.stringify(data);
 
-        let request = http.request({
-            host: 'localhost',
-            port: 17373,
-            path: '/',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(json),
-                'User-Agent': `SerenadeClient/${this.clientRunner.clientVersion()} ` +
-                    `(${this.os()} ${os.release()}; ${this.platform})`
+        let request = http.request(
+            {
+                host: 'localhost',
+                port: 17373,
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(json),
+                    'User-Agent': `SerenadeClient/${this.clientRunner.clientVersion()} ` +
+                        `(${this.os()} ${os.release()}; ${this.platform})`
+                }
+            },
+            (response: any) => {
+                if (onResponse) {
+                    onResponse(response);
+                }
             }
-        });
+        );
+
+        if (onError) {
+            request.on('error', (error: any) => {
+                onError(error);
+            });
+        }
 
         request.write(json);
         request.end();
+    }
+
+    pingClientUntilRunning() {
+        this.send(
+            'PING',
+            {},
+            (_response: any) => {
+                this.state.set('clientRunning', true);
+            },
+            (_error: any) => {
+                setTimeout(() => {
+                    this.pingClientUntilRunning();
+                }, 100);
+            }
+        );
     }
 
     start() {

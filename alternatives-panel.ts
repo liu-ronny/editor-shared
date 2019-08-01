@@ -32,7 +32,7 @@ export default abstract class AlternativesPanel {
   </div>
   <div class="alternatives-volume-container hidden">
     <div class="alternatives-listen-controls">
-      <button class="btn btn-listen">Listen</button>
+      <button class="btn btn-listen" disabled>Listen</button>
       <button class="btn btn-menu">
       <i class="fas fa-chevron-down"></i>
       <div class="menu-dropdown hidden">
