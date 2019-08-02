@@ -10,10 +10,10 @@ export default class LinuxRunner extends BaseRunner {
     }
 
     jdkUrl() {
-        return 'https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz';
+        return `https://cdn.serenade.ai/jdk/jdk-linux-${this.jdkVersion()}.tar.gz`;
     }
 
     jdkVersion() {
-        return 'jdk-11.0.2';
+        return '0e348736654c61b3ceb268190d263d41';
     }
 }
