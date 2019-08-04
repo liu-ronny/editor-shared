@@ -172,6 +172,13 @@ $font-size-tiny: 13px;
                 height: 36px;
                 width: 100%;
             }
+
+            .btn-pre-skip {
+                display: block;
+                margin-top: 4px;
+                text-align: center;
+                text-decoration: underline;
+            }
         }
 
         .btn-login .lds-ring, .btn-register .lds-ring {

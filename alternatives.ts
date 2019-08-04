@@ -142,6 +142,13 @@ export default abstract class Alternatives {
             });
         });
 
+        // skip login form
+        this.$('.btn-pre-skip')!.addEventListener('click', () => {
+            this.$('.btn-pre-skip')!.setAttribute('href', '#');
+            this.$('.btn-pre-skip .lds-ring')!.classList.remove('hidden');
+            this.sendIPC('REGISTER_WITHOUT_SIGNUP', {});
+        });
+
         // toggle dropdown on dropdown button click
         this.$('.btn-menu')!.addEventListener('click', () => {
             this.$('.btn-menu i')!.classList.toggle('active');

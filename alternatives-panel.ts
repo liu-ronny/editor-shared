@@ -14,8 +14,9 @@ export default abstract class AlternativesPanel {
   </div>
   <div class="alternatives-login-container">
     <div class="alternatives-pre-login-buttons">
-      <button class="btn btn-pre-login">Sign in</button>
+      <button class="btn btn-pre-login">Log in to Serenade</button>
       <button class="btn btn-pre-register">Sign up for Serenade</button>
+      <a href="#" class="btn-pre-skip">Skip for now ${this.spinner()}</a>
     </div>
     <div class="alternatives-login hidden">
       <div class="login-error hidden"></div>
@@ -72,8 +73,7 @@ export default abstract class AlternativesPanel {
 <input type="text" class="input-login-email" placeholder="Email" />
 <input type="password" class="input-login-password" placeholder="Password" />
 <button class="btn btn-login">
-    Sign in
-    <div class="lds-ring hidden"><div></div><div></div><div></div><div></div></div>
+    Log in to Serenade ${this.spinner()}
 </button>
 <a href="#" class="btn-login-alt btn-pre-register">Or sign up for an account</a>
         `;
@@ -85,9 +85,12 @@ export default abstract class AlternativesPanel {
 <input type="text" class="input-register-email" placeholder="Email" />
 <input type="password" class="input-register-password" placeholder="Password" />
 <button class="btn btn-register">
-    Sign up for Serenade
-    <div class="lds-ring hidden"><div></div><div></div><div></div><div></div></div>
+    Sign up for Serenade ${this.spinner()}
 </button>
         `;
+    }
+
+    spinner(): string {
+        return `<div class="lds-ring hidden"><div></div><div></div><div></div><div></div></div>`;
     }
 }
