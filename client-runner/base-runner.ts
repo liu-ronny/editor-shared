@@ -40,7 +40,7 @@ export default abstract class BaseRunner {
     }
 
     clientVersion() {
-        return 'de97aa246d6e02a33e77e322f1cd196e';
+        return '3b3ad0dcbd71f9db983bda2a18eb4649';
     }
 
     clientUrl() {

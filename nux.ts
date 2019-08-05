@@ -12,11 +12,10 @@ export function steps(): {title: string, body: string}[] {
         {
             title: 'Alternatives',
             body: '<p>As you speak, you\'ll see a list of alternatives appear below. ' +
-                'This list appears when Serenade isn\'t exactly sure what you said. ' +
-                'When it appears, you can say "clear" to clear the list and start over, ' +
-                'or "use" followed by the number you want to select, like "use one" or "use three".</p>' +
+                'You can say "clear" to clear the list and start over, ' +
+                'or "use" followed by the number you want to select (for instance, "use three").</p>' +
                 '<p>You can also pause while speaking, and Serenade will wait for you; there\'s no need to ' +
-                'try to say an entire command in one breath.</p>'
+                'try to say everything in one breath.</p>'
         },
         {
             title: 'Adding code',
