@@ -182,11 +182,6 @@ export default abstract class Alternatives {
             this.showDocsPanel('https://docs.serenade.ai/docs/reference.html');
         });
 
-        // send clear command on clear button click
-        this.$('.btn-clear')!.addEventListener('click', () => {
-            this.sendIPC('SEND_TEXT', {text: 'cancel'});
-        });
-
         // send use command on alternative click
         this.$('.alternatives-valid-list')!.addEventListener('click', e => {
             const $row = (e.target as HTMLElement).closest('.alternative-row')!;

@@ -37,7 +37,7 @@ export default abstract class AlternativesPanel {
       <button class="btn btn-menu">
       <i class="fas fa-chevron-down"></i>
       <div class="menu-dropdown hidden">
-        <a href="#" class="btn-clear">Clear</a>
+        <a href="https://serenade.ai/community" class="btn-community">Community</a>
         <a href="#" class="btn-guide">Guide</a>
         <a href="#" class="btn-reference">Reference</a>
       </div>
