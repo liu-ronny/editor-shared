@@ -45,6 +45,7 @@ export default abstract class BaseCommandHandler {
 
     async updateEditor(source: string, cursor: number) {
         const before = this.getActiveEditorText() || '';
+        source = source || '';
         let [row, column] = diff.cursorToRowAndColumn(source, cursor);
         let ranges = diff.diff(before, source);
         if (ranges.length == 0) {
