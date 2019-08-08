@@ -1,10 +1,12 @@
 import App from './app';
 import * as diff from './diff';
+import Settings from './settings';
 import StateManager from './state-manager';
 
 export default abstract class BaseCommandHandler {
     app: App;
     state: StateManager;
+    settings: Settings;
 
     abstract async focus(): Promise<any>;
     abstract getActiveEditorText(): string|undefined;
@@ -30,9 +32,10 @@ export default abstract class BaseCommandHandler {
     abstract COMMAND_TYPE_USE(data: any): Promise<any>;
     abstract COMMAND_TYPE_WINDOW(data: any): Promise<any>;
 
-    constructor(app: App, state: StateManager) {
+    constructor(app: App, state: StateManager, settings: Settings) {
         this.app = app;
         this.state = state;
+        this.settings = settings;
     }
 
     async uiDelay() {
@@ -57,8 +60,10 @@ export default abstract class BaseCommandHandler {
             )];
         }
 
-        const addRanges = ranges.filter((e: diff.DiffRange) => e.diffRangeType == diff.DiffRangeType.Add);
-        const deleteRanges = ranges.filter((e: diff.DiffRange) => e.diffRangeType == diff.DiffRangeType.Delete);
+        const enable = !this.settings.get('disable_animations');
+        const addRanges = enable ? ranges.filter((e: diff.DiffRange) => e.diffRangeType == diff.DiffRangeType.Add) : [];
+        const deleteRanges =
+            enable ? ranges.filter((e: diff.DiffRange) => e.diffRangeType == diff.DiffRangeType.Delete) : [];
         this.state.set('highlightedRanges', deleteRanges);
 
         return new Promise(resolve => {

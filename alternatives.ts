@@ -339,6 +339,15 @@ export default abstract class Alternatives {
     onListening(on: boolean, _previous: boolean) {
         if (this.getState('clientRunning')) {
             this.$('.btn-listen')!.innerHTML = on ? 'Pause' : 'Listen';
+
+            if (on) {
+                this.setState('status', 'Listening');
+                this.$('.listening-indicator')!.classList.remove('hidden');
+            }
+            else {
+                this.setState('status', 'Paused');
+                this.$('.listening-indicator')!.classList.add('hidden');
+            }
         }
 
         if (on) {
@@ -411,12 +420,6 @@ export default abstract class Alternatives {
 
     onStatus(text: string, _previous: string) {
         this.$('.alternatives-status')!.innerHTML = text;
-        if (text == 'Listening') {
-            this.$('.listening-indicator')!.classList.remove('hidden');
-        }
-        else {
-            this.$('.listening-indicator')!.classList.add('hidden');
-        }
     }
 
     onVolume(volume: number, _previous: number) {

@@ -101,7 +101,10 @@ export default class IPC {
             'PING',
             {},
             (_response: any) => {
-                this.state.set('clientRunning', true);
+                // wait an extra 300ms for client startup time
+                setTimeout(() => {
+                    this.state.set('clientRunning', true);
+                }, 300);
             },
             (_error: any) => {
                 setTimeout(() => {
