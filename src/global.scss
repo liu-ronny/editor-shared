@@ -1,0 +1,34 @@
+$success-color: #2ba143;
+$error-color: #ff6347;
+
+.success-color-1 {
+    background: rgba($success-color, 10%);
+}
+
+.success-color-2 {
+    background: rgba($success-color, 20%);
+}
+
+.success-color-3 {
+    background: rgba($success-color, 30%);
+}
+
+.success-color-4 {
+    background: rgba($success-color, 40%);
+}
+
+.error-color-1 {
+    background: rgba($error-color, 10%);
+}
+
+.error-color-2 {
+    background: rgba($error-color, 20%);
+}
+
+.error-color-3 {
+    background: rgba($error-color, 30%);
+}
+
+.error-color-4 {
+    background: rgba($error-color, 40%);
+}
