@@ -4,13 +4,50 @@ import * as os from "os";
 import CommandHandler from "./command-handler";
 
 export default class IPC {
-  protected port: number;
-  protected server?: http.Server;
-  protected commandHandler: CommandHandler;
+  private commandHandler: CommandHandler;
+  private onSuccess: () => void;
+  private port: number;
+  private server?: http.Server;
 
-  constructor(commandHandler: CommandHandler, port: number) {
+  constructor(commandHandler: CommandHandler, port: number, onSuccess: () => void) {
     this.commandHandler = commandHandler;
     this.port = port;
+    this.onSuccess = onSuccess;
+  }
+
+  async checkClientRunning(): Promise<boolean> {
+    return new Promise(resolve => {
+      const data = JSON.stringify({ type: "check" });
+      const options = {
+        hostname: "localhost",
+        port: 17373,
+        path: "/",
+        method: "POST",
+        timeout: 1000,
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": data.length
+        }
+      };
+
+      const request = http.request(options, response => {
+        response.on("data", _data => {
+          resolve(true);
+        });
+      });
+
+      request.on("error", _error => {
+        resolve(false);
+      });
+
+      request.on("timeout", () => {
+        request.abort();
+        resolve(false);
+      });
+
+      request.write(data);
+      request.end();
+    });
   }
 
   async handle(response: any): Promise<any> {
@@ -25,6 +62,10 @@ export default class IPC {
           }
         }
       }
+    }
+
+    if (result) {
+      this.onSuccess();
     }
 
     return result;

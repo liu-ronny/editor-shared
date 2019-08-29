@@ -111,7 +111,7 @@ export default abstract class BaseCommandHandler {
       ];
     }
 
-    const enable = !this.settings.get("disable_animations");
+    const enable = !this.settings.getDisableAnimations();
     const addRanges = enable
       ? ranges.filter((e: diff.DiffRange) => e.diffRangeType == diff.DiffRangeType.Add)
       : [];

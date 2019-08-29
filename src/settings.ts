@@ -1,52 +1,79 @@
-import * as fs from 'fs';
-import * as mkdirp from 'mkdirp';
-import * as os from 'os';
+import * as fs from "fs";
+import * as mkdirp from "mkdirp";
+import * as os from "os";
 
 export default class Settings {
-    private data: any = {};
-    private defaults: any = {
-        disable_autostart: false,
-        ignore: ['.git/', '.gradle/', '.pyc$', '.class$', '.jar$', '.dylib$'],
-        token: ''
-    };
+  private systemData: any = {};
+  private systemDefaults: any = {};
+  private userData: any = {};
+  private userDefaults: any = {
+    ignore: [".git/", ".gradle/", ".pyc$", ".class$", ".jar$", ".dylib$"]
+  };
 
-    private file(): string {
-        return `${this.path()}/settings.json`;
+  private dataForFile(file: string): any {
+    if (file == "user") {
+      return this.userData;
+    } else if (file == "system") {
+      return this.systemData;
+    }
+  }
+
+  private defaultsForFile(file: string): any {
+    if (file == "user") {
+      return this.userDefaults;
+    } else if (file == "system") {
+      return this.systemDefaults;
+    }
+  }
+
+  private get(file: string, key: string): any {
+    this.load();
+    let data = this.dataForFile(file);
+    if (data[key] === undefined) {
+      return this.defaultsForFile(file)[key];
     }
 
-    private load(): void {
-        this.data = {};
-        mkdirp.sync(this.path());
-        if (!fs.existsSync(this.file())) {
-            return;
-        }
+    return data[key];
+  }
 
-        try {
-            this.data = JSON.parse(fs.readFileSync(this.file()).toString());
-        } catch (error) {}
+  private load() {
+    this.systemData = {};
+    this.userData = {};
+
+    try {
+      this.systemData = JSON.parse(fs.readFileSync(this.systemFile()).toString());
+    } catch (e) {
+      this.systemData = {};
     }
 
-    get(key: string): any {
-        this.load();
-        if (this.data[key] === undefined) {
-            return this.defaults[key];
-        }
-
-        return this.data[key];
+    try {
+      this.userData = JSON.parse(fs.readFileSync(this.userFile()).toString());
+    } catch (e) {
+      this.userData = {};
     }
+  }
 
-    path() {
-        return `${os.homedir()}/.serenade`;
-    }
+  private systemFile(): string {
+    return `${this.path()}/serenade.json`;
+  }
 
-    save() {
-        mkdirp.sync(this.path());
-        fs.writeFileSync(this.file(), JSON.stringify(this.data));
-    }
+  private userFile(): string {
+    return `${this.path()}/settings.json`;
+  }
 
-    set(key: string, value: any) {
-        this.load();
-        this.data[key] = value;
-        this.save();
-    }
+  getAppInstalled(): boolean {
+    return this.get("system", "app_installed");
+  }
+
+  getDisableAnimations(): boolean {
+    return this.get("user", "disable_animations");
+  }
+
+  getIgnore(): string {
+    return this.get("user", "ignore");
+  }
+
+  path(): string {
+    return `${os.homedir()}/.serenade`;
+  }
 }
