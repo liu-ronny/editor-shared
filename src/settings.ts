@@ -7,7 +7,16 @@ export default class Settings {
   private systemDefaults: any = {};
   private userData: any = {};
   private userDefaults: any = {
-    ignore: [".git/", ".gradle/", ".pyc$", ".class$", ".jar$", ".dylib$"]
+    ignore: [
+      "**/.git/**",
+      "**/.gradle/**",
+      "*.pyc",
+      "*.class",
+      "*.jar",
+      "*.dylib",
+      "**/node_modules/**",
+      "**/__pycache__/**"
+    ]
   };
 
   private dataForFile(file: string): any {
@@ -69,7 +78,7 @@ export default class Settings {
     return this.get("user", "disable_animations");
   }
 
-  getIgnore(): string {
+  getIgnore(): string[] {
     return this.get("user", "ignore");
   }
 

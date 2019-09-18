@@ -1,8 +1,10 @@
 import App from "./app";
 import * as diff from "./diff";
+import IPCClient from "./ipc/client";
 import Settings from "./settings";
 
 export default abstract class BaseCommandHandler {
+  ipcClient: IPCClient;
   settings: Settings;
 
   abstract async focus(): Promise<any>;
@@ -15,11 +17,9 @@ export default abstract class BaseCommandHandler {
   abstract COMMAND_TYPE_CLOSE_WINDOW(_data: any): Promise<any>;
   abstract COMMAND_TYPE_COPY(data: any): Promise<any>;
   abstract COMMAND_TYPE_CREATE_TAB(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_DIFF(data: any): Promise<any>;
   abstract COMMAND_TYPE_GET_EDITOR_STATE(_data: any): Promise<any>;
   abstract COMMAND_TYPE_GO_TO_DEFINITION(_data: any): Promise<any>;
   abstract COMMAND_TYPE_NEXT_TAB(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_OPEN_FILE(data: any): Promise<any>;
   abstract COMMAND_TYPE_PASTE(data: any): Promise<any>;
   abstract COMMAND_TYPE_PREVIOUS_TAB(_data: any): Promise<any>;
   abstract COMMAND_TYPE_REDO(_data: any): Promise<any>;
@@ -29,7 +29,8 @@ export default abstract class BaseCommandHandler {
   abstract COMMAND_TYPE_UNDO(_data: any): Promise<any>;
   abstract COMMAND_TYPE_WINDOW(data: any): Promise<any>;
 
-  constructor(settings: Settings) {
+  constructor(ipcClient: IPCClient, settings: Settings) {
+    this.ipcClient = ipcClient;
     this.settings = settings;
   }
 
@@ -131,5 +132,21 @@ export default abstract class BaseCommandHandler {
         deleteRanges.length > 0 ? 400 : 0
       );
     });
+  }
+
+  async COMMAND_TYPE_DIFF(data: any): Promise<any> {
+    await this.updateEditor(data.source, data.cursor);
+  }
+
+  async COMMAND_TYPE_SNIPPET(data: any): Promise<any> {
+    // the current request has to complete before we can send a new one
+    setTimeout(() => {
+      this.ipcClient!.send("mic", { type: "sendText", text: `add executed snippet ${data.text};` });
+    }, 100);
+  }
+
+  async COMMAND_TYPE_SNIPPET_EXECUTED(data: any): Promise<any> {
+    await this.updateEditor(data.source, data.cursor);
+    await this.focus();
   }
 }

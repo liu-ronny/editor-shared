@@ -1,9 +1,7 @@
 import * as http from "http";
-import * as os from "os";
+import CommandHandler from "../command-handler";
 
-import CommandHandler from "./command-handler";
-
-export default class IPC {
+export default class IPCServer {
   private commandHandler: CommandHandler;
   private onSuccess: () => void;
   private port: number;
@@ -15,56 +13,23 @@ export default class IPC {
     this.onSuccess = onSuccess;
   }
 
-  async checkClientRunning(): Promise<boolean> {
-    return new Promise(resolve => {
-      const data = JSON.stringify({ type: "check" });
-      const options = {
-        hostname: "localhost",
-        port: 17373,
-        path: "/",
-        method: "POST",
-        timeout: 1000,
-        headers: {
-          "Content-Type": "application/json",
-          "Content-Length": data.length
-        }
-      };
-
-      const request = http.request(options, response => {
-        response.on("data", _data => {
-          resolve(true);
-        });
-      });
-
-      request.on("error", _error => {
-        resolve(false);
-      });
-
-      request.on("timeout", () => {
-        request.abort();
-        resolve(false);
-      });
-
-      request.write(data);
-      request.end();
-    });
-  }
-
   async handle(response: any): Promise<any> {
     let result = null;
+    let success = false;
     if (response.execute) {
       for (let i = 0; i < response.execute.sequences.length; i++) {
         let sequence = response.execute.sequences[i];
 
         for (let command of sequence.commands) {
           if (command.type in (this.commandHandler as any)) {
+            success = true;
             result = await (this.commandHandler as any)[command.type](command);
           }
         }
       }
     }
 
-    if (result) {
+    if (success) {
       this.onSuccess();
     }
 
@@ -79,15 +44,15 @@ export default class IPC {
       });
 
       request.on("end", async () => {
-        let parseResponse = "";
+        let responseData = "";
         try {
-          parseResponse = JSON.parse(body);
+          responseData = JSON.parse(body);
         } catch (e) {
           response.end("");
           return;
         }
 
-        let result = await this.handle(parseResponse);
+        let result = await this.handle(responseData);
         if (!result) {
           result = { success: true };
         }

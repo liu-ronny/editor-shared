@@ -1,12 +1,19 @@
-import IPC from "./ipc";
+import CommandHandler from "./command-handler";
+import IPCClient from "./ipc/client";
+import IPCServer from "./ipc/server";
 import Settings from "./settings";
 
 export default abstract class App {
-  ipc?: IPC;
+  commandHandler?: CommandHandler;
+  ipcClient?: IPCClient;
+  ipcServer?: IPCServer;
   settings?: Settings;
 
+  abstract createCommandHandler(): CommandHandler;
+  abstract hideMessage(): void;
   abstract showInstallMessage(): void;
   abstract showNotRunningMessage(): void;
+  abstract port(): number;
 
   async checkInstalledAndRunning() {
     const installed = this.settings!.getAppInstalled();
@@ -15,7 +22,7 @@ export default abstract class App {
       return;
     }
 
-    const running = await this.ipc!.checkClientRunning();
+    const running = await this.ipcClient!.checkClientRunning();
     if (!running) {
       this.showNotRunningMessage();
       return;
@@ -23,11 +30,18 @@ export default abstract class App {
   }
 
   destroy() {
-    this.ipc!.stop();
+    this.ipcServer!.stop();
   }
 
   async run() {
-    this.ipc!.start();
+    this.settings = new Settings();
+    this.ipcClient = new IPCClient();
+    this.commandHandler = this.createCommandHandler();
+    this.ipcServer = new IPCServer(this.commandHandler, this.port(), () => {
+      this.hideMessage();
+    });
+
+    this.ipcServer!.start();
     this.checkInstalledAndRunning();
   }
 }
