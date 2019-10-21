@@ -70,16 +70,20 @@ export default class Settings {
     return `${this.path()}/settings.json`;
   }
 
-  getAppInstalled(): boolean {
-    return this.get("system", "app_installed");
-  }
-
   getDisableAnimations(): boolean {
     return this.get("user", "disable_animations");
   }
 
+  getInstalled(): boolean {
+    return this.get("system", "installed");
+  }
+
   getIgnore(): string[] {
     return this.get("user", "ignore");
+  }
+
+  getRunning(): boolean {
+    return this.get("system", "running");
   }
 
   path(): string {

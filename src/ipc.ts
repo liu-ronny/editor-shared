@@ -1,36 +1,28 @@
 import * as http from "http";
-import CommandHandler from "../command-handler";
+import CommandHandler from "./command-handler";
 
-export default class IPCServer {
+export default class IPC {
   private commandHandler: CommandHandler;
-  private onSuccess: () => void;
   private port: number;
   private server?: http.Server;
 
-  constructor(commandHandler: CommandHandler, port: number, onSuccess: () => void) {
+  constructor(commandHandler: CommandHandler, port: number) {
     this.commandHandler = commandHandler;
     this.port = port;
-    this.onSuccess = onSuccess;
   }
 
   async handle(response: any): Promise<any> {
     let result = null;
-    let success = false;
     if (response.execute) {
-      for (let i = 0; i < response.execute.sequences.length; i++) {
-        let sequence = response.execute.sequences[i];
+      for (let i = 0; i < response.execute.sequencesList.length; i++) {
+        let sequence = response.execute.sequencesList[i];
 
-        for (let command of sequence.commands) {
+        for (let command of sequence.commandsList) {
           if (command.type in (this.commandHandler as any)) {
-            success = true;
             result = await (this.commandHandler as any)[command.type](command);
           }
         }
       }
-    }
-
-    if (success) {
-      this.onSuccess();
     }
 
     return result;

@@ -1,10 +1,8 @@
 import App from "./app";
 import * as diff from "./diff";
-import IPCClient from "./ipc/client";
 import Settings from "./settings";
 
 export default abstract class BaseCommandHandler {
-  ipcClient: IPCClient;
   settings: Settings;
 
   abstract async focus(): Promise<any>;
@@ -29,8 +27,7 @@ export default abstract class BaseCommandHandler {
   abstract COMMAND_TYPE_UNDO(_data: any): Promise<any>;
   abstract COMMAND_TYPE_WINDOW(data: any): Promise<any>;
 
-  constructor(ipcClient: IPCClient, settings: Settings) {
-    this.ipcClient = ipcClient;
+  constructor(settings: Settings) {
     this.settings = settings;
   }
 
@@ -139,10 +136,10 @@ export default abstract class BaseCommandHandler {
   }
 
   async COMMAND_TYPE_SNIPPET(data: any): Promise<any> {
-    // the current request has to complete before we can send a new one
-    setTimeout(() => {
-      this.ipcClient!.send("mic", { type: "sendText", text: `add executed snippet ${data.text};` });
-    }, 100);
+    return {
+      type: "sendText",
+      text: `add executed snippet ${data.text}`
+    };
   }
 
   async COMMAND_TYPE_SNIPPET_EXECUTED(data: any): Promise<any> {
