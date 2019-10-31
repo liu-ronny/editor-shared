@@ -10,23 +10,15 @@ export default abstract class App {
   abstract createCommandHandler(): CommandHandler;
   abstract hideMessage(): void;
   abstract showInstallMessage(): void;
-  abstract showNotRunningMessage(): void;
   abstract port(): number;
 
-  checkInstalledAndRunning() {
+  checkInstalled(): boolean {
     const installed = this.settings!.getInstalled();
     if (!installed) {
       this.showInstallMessage();
       return false;
     }
 
-    const running = this.settings!.getRunning();
-    if (!running) {
-      this.showNotRunningMessage();
-      return false;
-    }
-
-    this.hideMessage();
     return true;
   }
 
@@ -37,12 +29,6 @@ export default abstract class App {
     this.commandHandler = this.createCommandHandler();
     this.ipc = new IPC(this.commandHandler, this.port());
     this.ipc.start();
-
-    let pid = setInterval(() => {
-      const result = this.checkInstalledAndRunning();
-      if (result) {
-        clearInterval(pid);
-      }
-    }, 1000);
+    this.checkInstalled();
   }
 }
