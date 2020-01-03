@@ -6,9 +6,10 @@ export default abstract class BaseCommandHandler {
   settings: Settings;
 
   abstract async focus(): Promise<any>;
-  abstract highlightRanges(ranges: diff.DiffRange[]): void;
+  abstract highlightRanges(ranges: diff.DiffRange[]): number;
   abstract getActiveEditorText(): string | undefined;
   abstract async scrollToCursor(): Promise<any>;
+  abstract select(startRow: number, startColumn: number, endRow: number, endColumn: number): void;
   abstract setSourceAndCursor(before: string, source: string, row: number, column: number): void;
 
   abstract COMMAND_TYPE_CLOSE_TAB(_data: any): Promise<any>;
@@ -92,11 +93,17 @@ export default abstract class BaseCommandHandler {
     });
   }
 
-  async updateEditor(source: string, cursor: number) {
+  async updateEditor(source: string, cursor: number): Promise<any> {
     await this.focus();
+
     const before = this.getActiveEditorText() || "";
     source = source || "";
     let [row, column] = diff.cursorToRowAndColumn(source, cursor);
+    if (!this.settings.getAnimations()) {
+      this.setSourceAndCursor(before, source, row, column);
+      return Promise.resolve();
+    }
+
     let ranges = diff.diff(before, source);
     if (ranges.length == 0) {
       ranges = [
@@ -109,15 +116,14 @@ export default abstract class BaseCommandHandler {
       ];
     }
 
-    const enable = !this.settings.getDisableAnimations();
-    const addRanges = enable
-      ? ranges.filter((e: diff.DiffRange) => e.diffRangeType == diff.DiffRangeType.Add)
-      : [];
-    const deleteRanges = enable
-      ? ranges.filter((e: diff.DiffRange) => e.diffRangeType == diff.DiffRangeType.Delete)
-      : [];
-    this.highlightRanges(deleteRanges);
+    const addRanges = ranges.filter(
+      (e: diff.DiffRange) => e.diffRangeType == diff.DiffRangeType.Add
+    );
+    const deleteRanges = ranges.filter(
+      (e: diff.DiffRange) => e.diffRangeType == diff.DiffRangeType.Delete
+    );
 
+    const timeout = this.highlightRanges(deleteRanges);
     return new Promise(resolve => {
       setTimeout(
         async () => {
@@ -126,13 +132,19 @@ export default abstract class BaseCommandHandler {
           await this.scrollToCursor();
           resolve();
         },
-        deleteRanges.length > 0 ? 400 : 0
+        deleteRanges.length > 0 ? timeout : 1
       );
     });
   }
 
   async COMMAND_TYPE_DIFF(data: any): Promise<any> {
     await this.updateEditor(data.source, data.cursor);
+  }
+
+  async COMMAND_TYPE_SELECT(data: any): Promise<any> {
+    const [startRow, startColumn] = diff.cursorToRowAndColumn(data.source, data.cursor);
+    const [endRow, endColumn] = diff.cursorToRowAndColumn(data.source, data.cursorEnd);
+    this.select(startRow, startColumn, endRow, endColumn);
   }
 
   async COMMAND_TYPE_SNIPPET(data: any): Promise<any> {

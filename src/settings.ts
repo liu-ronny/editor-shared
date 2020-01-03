@@ -70,8 +70,8 @@ export default class Settings {
     return `${this.path()}/settings.json`;
   }
 
-  getDisableAnimations(): boolean {
-    return this.get("user", "disable_animations");
+  getAnimations(): boolean {
+    return this.get("user", "animations");
   }
 
   getInstalled(): boolean {

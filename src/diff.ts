@@ -48,7 +48,6 @@ export class DiffRange {
     index: number,
     length: number
   ): DiffRange {
-    let diffHighlightType = DiffHighlightType.Word;
     const start = cursorToRowAndColumn(source, index);
     const stop = cursorToRowAndColumn(source, index + length);
 
@@ -59,6 +58,7 @@ export class DiffRange {
     }
 
     // if we're at a newline or the end, then start at the start of the next line
+    let diffHighlightType = start[0] == stop[0] ? DiffHighlightType.Word : DiffHighlightType.Line;
     if (index + length == source.length - 1 || source[index] == "\n") {
       start[0]++;
       start[1] = 0;
