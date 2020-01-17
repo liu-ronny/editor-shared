@@ -101,6 +101,7 @@ export default abstract class BaseCommandHandler {
     let [row, column] = diff.cursorToRowAndColumn(source, cursor);
     if (!this.settings.getAnimations()) {
       this.setSourceAndCursor(before, source, row, column);
+      await this.scrollToCursor();
       return Promise.resolve();
     }
 
