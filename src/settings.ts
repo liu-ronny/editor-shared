@@ -19,6 +19,13 @@ export default class Settings {
     ]
   };
 
+  private createIfNotExists(file: string) {
+    mkdirp.sync(this.path());
+    if (!fs.existsSync(file)) {
+      fs.closeSync(fs.openSync(file, "w"));
+    }
+  }
+
   private dataForFile(file: string): any {
     if (file == "user") {
       return this.userData;
@@ -62,6 +69,21 @@ export default class Settings {
     }
   }
 
+  private save() {
+    this.createIfNotExists(this.systemFile());
+    this.createIfNotExists(this.userFile());
+
+    fs.writeFileSync(this.systemFile(), JSON.stringify(this.systemData));
+    fs.writeFileSync(this.userFile(), JSON.stringify(this.userData));
+  }
+
+  private set(file: string, key: string, value: any) {
+    this.load();
+    let data = this.dataForFile(file);
+    data[key] = value;
+    this.save();
+  }
+
   private systemFile(): string {
     return `${this.path()}/serenade.json`;
   }
@@ -74,6 +96,14 @@ export default class Settings {
     return this.get("user", "animations");
   }
 
+  getAtom(): boolean {
+    return this.get("system", "atom");
+  }
+
+  getCode(): boolean {
+    return this.get("system", "code");
+  }
+
   getInstalled(): boolean {
     return this.get("system", "installed");
   }
@@ -82,11 +112,15 @@ export default class Settings {
     return this.get("user", "ignore");
   }
 
-  getRunning(): boolean {
-    return this.get("system", "running");
-  }
-
   path(): string {
     return `${os.homedir()}/.serenade`;
+  }
+
+  setAtom() {
+    return this.set("system", "atom", true);
+  }
+
+  setCode() {
+    return this.set("system", "code", true);
   }
 }
