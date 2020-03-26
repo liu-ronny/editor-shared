@@ -7,10 +7,10 @@ export default abstract class App {
   ipc?: IPC;
   settings?: Settings;
 
+  abstract app(): string;
   abstract createCommandHandler(): CommandHandler;
   abstract hideMessage(): void;
   abstract showInstallMessage(): void;
-  abstract port(): number;
 
   checkInstalled(): boolean {
     const installed = this.settings!.getInstalled();
@@ -27,7 +27,7 @@ export default abstract class App {
   async run() {
     this.settings = new Settings();
     this.commandHandler = this.createCommandHandler();
-    this.ipc = new IPC(this.commandHandler, this.port());
+    this.ipc = new IPC(this.commandHandler, this.app());
     this.ipc.start();
     this.checkInstalled();
   }

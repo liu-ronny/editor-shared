@@ -147,16 +147,4 @@ export default abstract class BaseCommandHandler {
     const [endRow, endColumn] = diff.cursorToRowAndColumn(data.source, data.cursorEnd);
     this.select(startRow, startColumn, endRow, endColumn);
   }
-
-  async COMMAND_TYPE_SNIPPET(data: any): Promise<any> {
-    return {
-      type: "sendText",
-      text: `add executed snippet ${data.text}`
-    };
-  }
-
-  async COMMAND_TYPE_SNIPPET_EXECUTED(data: any): Promise<any> {
-    await this.updateEditor(data.source, data.cursor);
-    await this.focus();
-  }
 }
