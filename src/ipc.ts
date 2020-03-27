@@ -8,6 +8,7 @@ export default class IPC {
   private connected: boolean = false;
   private id: string = "";
   private websocket?: WebSocket;
+  private lastSentActive: number = 0;
 
   constructor(commandHandler: CommandHandler, app: string) {
     this.commandHandler = commandHandler;
@@ -16,73 +17,94 @@ export default class IPC {
   }
 
   ensureConnection() {
-    if (!this.connected) {
-      try {
-        this.websocket = new WebSocket("ws://localhost:17373/");
-        this.websocket.on("error", () => {});
-
-        this.websocket.on("open", () => {
-          this.connected = true;
-          this.sendActive();
-        });
-
-        this.websocket.on("close", () => {
-          this.connected = false;
-        });
-
-        this.websocket.on("message", async message => {
-          if (typeof message == "string") {
-            let request;
-            try {
-              request = JSON.parse(message);
-            } catch (e) {
-              return;
-            }
-
-            if (request.message == "response") {
-              const result = await this.handle(request.data.response);
-              if (result) {
-                this.send("callback", {
-                  callback: request.data.callback,
-                  data: result
-                });
-              }
-            }
-          }
-        });
-      } catch (e) {}
-    }
-  }
-
-  async handle(response: any): Promise<any> {
-    let result = null;
-    if (response.execute) {
-      for (const command of response.execute.commandsList) {
-        if (command.type in (this.commandHandler as any)) {
-          result = await (this.commandHandler as any)[command.type](command);
-        }
-      }
-    }
-
-    return result;
-  }
-
-  sendActive() {
-    this.send("active", {
-      app: this.app,
-      id: this.id
-    });
-  }
-
-  send(message: string, data: any) {
-    if (!this.connected) {
+    if (this.connected) {
       return;
     }
 
     try {
+      this.websocket = new WebSocket("ws://localhost:17373/");
+      this.websocket.on("error", () => {});
+
+      this.websocket.on("open", () => {
+        this.connected = true;
+        this.sendActive();
+      });
+
+      this.websocket.on("close", () => {
+        this.connected = false;
+      });
+
+      this.websocket.on("message", async message => {
+        if (typeof message == "string") {
+          let request;
+          try {
+            request = JSON.parse(message);
+          } catch (e) {
+            return;
+          }
+
+          if (request.message == "response") {
+            const result = await this.handle(request.data.response);
+            if (result) {
+              this.send("callback", {
+                callback: request.data.callback,
+                data: result
+              });
+            }
+          }
+        }
+      });
+    } catch (e) {}
+  }
+
+  async handle(response: any): Promise<any> {
+    let result = null;
+    let handled = false;
+    if (response.execute) {
+      for (const command of response.execute.commandsList) {
+        if (command.type in (this.commandHandler as any)) {
+          result = await (this.commandHandler as any)[command.type](command);
+          handled = true;
+        }
+      }
+    }
+
+    if (result) {
+      return result;
+    }
+
+    return {
+      message: "completed",
+      data: {}
+    };
+  }
+
+  sendActive() {
+    if (Date.now() - this.lastSentActive < 1000) {
+      return;
+    }
+
+    let result = this.send("active", {
+      app: this.app,
+      id: this.id
+    });
+
+    if (result) {
+      this.lastSentActive = Date.now();
+    }
+  }
+
+  send(message: string, data: any) {
+    if (!this.connected) {
+      return false;
+    }
+
+    try {
       this.websocket!.send(JSON.stringify({ message, data }));
+      return true;
     } catch (e) {
       this.connected = false;
+      return false;
     }
   }
 
@@ -94,7 +116,10 @@ export default class IPC {
     }, 1000);
 
     setInterval(() => {
-      this.send("heartbeat", {});
-    }, 60000);
+      this.send("heartbeat", {
+        app: this.app,
+        id: this.id
+      });
+    }, 60 * 1000);
   }
 }
