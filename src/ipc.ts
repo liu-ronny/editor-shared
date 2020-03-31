@@ -1,83 +1,125 @@
-import * as http from "http";
+import { v4 as uuidv4 } from "uuid";
+import WebSocket from "ws";
 import CommandHandler from "./command-handler";
 
 export default class IPC {
+  private app: string;
   private commandHandler: CommandHandler;
-  private port: number;
-  private server?: http.Server;
-  private serverRunning: boolean = false;
-  private startServerPid: number = 0;
+  private connected: boolean = false;
+  private id: string = "";
+  private websocket?: WebSocket;
+  private lastSentActive: number = 0;
 
-  constructor(commandHandler: CommandHandler, port: number) {
+  constructor(commandHandler: CommandHandler, app: string) {
     this.commandHandler = commandHandler;
-    this.port = port;
+    this.app = app;
+    this.id = uuidv4();
   }
 
-  private startServer() {
-    http
-      .get(`http://localhost:${this.port}`, () => {})
-      .on("error", () => {
-        this.server = http.createServer((request, response) => {
-          let body = "";
-          request.on("data", data => {
-            body += data;
-          });
+  ensureConnection() {
+    if (this.connected) {
+      return;
+    }
 
-          request.on("end", async () => {
-            let responseData = "";
-            try {
-              responseData = JSON.parse(body);
-            } catch (e) {
-              response.end("");
-              return;
-            }
+    try {
+      this.websocket = new WebSocket("ws://localhost:17373/");
+      this.websocket.on("error", () => {});
 
-            let result = await this.handle(responseData);
-            if (!result) {
-              result = { success: true };
-            }
-
-            response.statusCode = 200;
-            response.setHeader("Content-Type", "application/json");
-            response.end(JSON.stringify(result));
-          });
-        });
-
-        try {
-          this.server.listen(this.port);
-        } catch (e) {}
+      this.websocket.on("open", () => {
+        this.connected = true;
+        this.sendActive();
       });
+
+      this.websocket.on("close", () => {
+        this.connected = false;
+      });
+
+      this.websocket.on("message", async message => {
+        if (typeof message == "string") {
+          let request;
+          try {
+            request = JSON.parse(message);
+          } catch (e) {
+            return;
+          }
+
+          if (request.message == "response") {
+            const result = await this.handle(request.data.response);
+            if (result) {
+              this.send("callback", {
+                callback: request.data.callback,
+                data: result
+              });
+            }
+          }
+        }
+      });
+    } catch (e) {}
   }
 
   async handle(response: any): Promise<any> {
     let result = null;
+    let handled = false;
     if (response.execute) {
       for (const command of response.execute.commandsList) {
         if (command.type in (this.commandHandler as any)) {
           result = await (this.commandHandler as any)[command.type](command);
+          handled = true;
         }
       }
     }
 
-    return result;
+    if (result) {
+      return result;
+    }
+
+    return {
+      message: "completed",
+      data: {}
+    };
+  }
+
+  sendActive() {
+    if (Date.now() - this.lastSentActive < 1000) {
+      return;
+    }
+
+    let result = this.send("active", {
+      app: this.app,
+      id: this.id
+    });
+
+    if (result) {
+      this.lastSentActive = Date.now();
+    }
+  }
+
+  send(message: string, data: any) {
+    if (!this.connected) {
+      return false;
+    }
+
+    try {
+      this.websocket!.send(JSON.stringify({ message, data }));
+      return true;
+    } catch (e) {
+      this.connected = false;
+      return false;
+    }
   }
 
   start() {
-    this.stop();
-    this.startServer();
-    this.startServerPid = window.setInterval(() => {
-      this.startServer();
-    }, 3000);
-  }
+    this.ensureConnection();
 
-  stop() {
-    if (this.server) {
-      this.server.close();
-    }
+    setInterval(() => {
+      this.ensureConnection();
+    }, 1000);
 
-    if (this.startServerPid) {
-      clearInterval(this.startServerPid);
-      this.startServerPid = 0;
-    }
+    setInterval(() => {
+      this.send("heartbeat", {
+        app: this.app,
+        id: this.id
+      });
+    }, 60 * 1000);
   }
 }

@@ -10,10 +10,10 @@ export default class Settings {
     ignore: [
       "**/.git/**",
       "**/.gradle/**",
-      "*.pyc",
-      "*.class",
-      "*.jar",
-      "*.dylib",
+      "**/*.pyc",
+      "**/*.class",
+      "**/*.jar",
+      "**/*.dylib",
       "**/node_modules/**",
       "**/__pycache__/**"
     ]
