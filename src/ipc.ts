@@ -1,19 +1,49 @@
 import { v4 as uuidv4 } from "uuid";
-import WebSocket from "ws";
-import CommandHandler from "./command-handler";
+import NodeWebSocket from "ws";
 
 export default class IPC {
   private app: string;
-  private commandHandler: CommandHandler;
+  private commandHandler: any;
   private connected: boolean = false;
   private id: string = "";
-  private websocket?: WebSocket;
   private lastSentActive: number = 0;
+  private websocket?: WebSocket | NodeWebSocket;
+  private url: string = "ws://localhost:17373/";
 
-  constructor(commandHandler: CommandHandler, app: string) {
+  constructor(commandHandler: any, app: string) {
     this.commandHandler = commandHandler;
     this.app = app;
     this.id = uuidv4();
+  }
+
+  private onClose() {
+    this.connected = false;
+  }
+
+  private async onMessage(message: any) {
+    if (typeof message == "string") {
+      let request;
+      try {
+        request = JSON.parse(message);
+      } catch (e) {
+        return;
+      }
+
+      if (request.message == "response") {
+        const result = await this.handle(request.data.response);
+        if (result) {
+          this.send("callback", {
+            callback: request.data.callback,
+            data: result
+          });
+        }
+      }
+    }
+  }
+
+  private onOpen() {
+    this.connected = true;
+    this.sendActive();
   }
 
   ensureConnection() {
@@ -22,39 +52,40 @@ export default class IPC {
     }
 
     try {
-      this.websocket = new WebSocket("ws://localhost:17373/");
-      this.websocket.on("error", () => {});
+      if (typeof WebSocket !== "undefined" && WebSocket) {
+        this.websocket = new WebSocket(this.url);
+        this.websocket.addEventListener("error", () => {});
 
-      this.websocket.on("open", () => {
-        this.connected = true;
-        this.sendActive();
-      });
+        this.websocket.addEventListener("open", () => {
+          this.onOpen();
+        });
 
-      this.websocket.on("close", () => {
-        this.connected = false;
-      });
+        this.websocket.addEventListener("close", () => {
+          this.onClose();
+        });
 
-      this.websocket.on("message", async message => {
-        if (typeof message == "string") {
-          let request;
-          try {
-            request = JSON.parse(message);
-          } catch (e) {
-            return;
-          }
+        this.websocket.addEventListener("message", event => {
+          this.onMessage(event.data);
+        });
+      } else {
+        this.websocket = new NodeWebSocket(this.url);
+        this.websocket.on("error", () => {});
 
-          if (request.message == "response") {
-            const result = await this.handle(request.data.response);
-            if (result) {
-              this.send("callback", {
-                callback: request.data.callback,
-                data: result
-              });
-            }
-          }
-        }
-      });
-    } catch (e) {}
+        this.websocket.on("open", () => {
+          this.onOpen();
+        });
+
+        this.websocket.on("close", () => {
+          this.onClose();
+        });
+
+        this.websocket.on("message", message => {
+          this.onMessage(message);
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async handle(response: any): Promise<any> {

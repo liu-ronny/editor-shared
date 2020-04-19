@@ -6,18 +6,7 @@ export default class Settings {
   private systemData: any = {};
   private systemDefaults: any = {};
   private userData: any = {};
-  private userDefaults: any = {
-    ignore: [
-      "**/.git/**",
-      "**/.gradle/**",
-      "**/*.pyc",
-      "**/*.class",
-      "**/*.jar",
-      "**/*.dylib",
-      "**/node_modules/**",
-      "**/__pycache__/**"
-    ]
-  };
+  private userDefaults: any = {};
 
   private createIfNotExists(file: string) {
     mkdirp.sync(this.path());
@@ -108,19 +97,21 @@ export default class Settings {
     return this.get("system", "installed");
   }
 
-  getIgnore(): string[] {
-    return this.get("user", "ignore");
-  }
-
   path(): string {
     return `${os.homedir()}/.serenade`;
   }
 
-  setAtom() {
-    return this.set("system", "atom", true);
-  }
+  setPluginInstalled(plugin: string) {
+    this.load();
+    let data = this.dataForFile("system");
+    if (!data.plugins) {
+      data.plugins = [];
+    }
 
-  setCode() {
-    return this.set("system", "code", true);
+    if (!data.plugins.includes(plugin)) {
+      data.plugins.push(plugin);
+    }
+
+    this.save();
   }
 }
