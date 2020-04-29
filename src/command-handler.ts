@@ -86,7 +86,7 @@ export default abstract class BaseCommandHandler {
   }
 
   async uiDelay() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         resolve();
       }, 100);
@@ -113,7 +113,7 @@ export default abstract class BaseCommandHandler {
           diff.DiffHighlightType.Line,
           new diff.DiffPoint(row, 0),
           new diff.DiffPoint(row + 1, 0)
-        )
+        ),
       ];
     }
 
@@ -125,7 +125,7 @@ export default abstract class BaseCommandHandler {
     );
 
     const timeout = this.highlightRanges(deleteRanges);
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(
         async () => {
           this.setSourceAndCursor(before, source, row, column);
