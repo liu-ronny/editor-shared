@@ -16,12 +16,16 @@ export default class IPC {
     this.id = uuidv4();
   }
 
+  isConnected() {
+    return this.connected;
+  }
+
   private onClose() {
     this.connected = false;
   }
 
   private async onMessage(message: any) {
-    if (typeof message == "string") {
+    if (typeof message === "string") {
       let request;
       try {
         request = JSON.parse(message);
@@ -29,12 +33,12 @@ export default class IPC {
         return;
       }
 
-      if (request.message == "response") {
+      if (request.message === "response") {
         const result = await this.handle(request.data.response);
         if (result) {
           this.send("callback", {
             callback: request.data.callback,
-            data: result
+            data: result,
           });
         }
       }
@@ -64,7 +68,7 @@ export default class IPC {
           this.onClose();
         });
 
-        this.websocket.addEventListener("message", event => {
+        this.websocket.addEventListener("message", (event) => {
           this.onMessage(event.data);
         });
       } else {
@@ -79,7 +83,7 @@ export default class IPC {
           this.onClose();
         });
 
-        this.websocket.on("message", message => {
+        this.websocket.on("message", (message) => {
           this.onMessage(message);
         });
       }
@@ -106,7 +110,7 @@ export default class IPC {
 
     return {
       message: "completed",
-      data: {}
+      data: {},
     };
   }
 
@@ -117,7 +121,7 @@ export default class IPC {
 
     let result = this.send("active", {
       app: this.app,
-      id: this.id
+      id: this.id,
     });
 
     if (result) {
@@ -149,7 +153,7 @@ export default class IPC {
     setInterval(() => {
       this.send("heartbeat", {
         app: this.app,
-        id: this.id
+        id: this.id,
       });
     }, 60 * 1000);
   }
