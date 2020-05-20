@@ -6,7 +6,6 @@ export default class IPC {
   private commandHandler: any;
   private connected: boolean = false;
   private id: string = "";
-  private lastSentActive: number = 0;
   private websocket?: WebSocket | NodeWebSocket;
   private url: string = "ws://localhost:17373/";
 
@@ -58,7 +57,9 @@ export default class IPC {
     try {
       if (typeof WebSocket !== "undefined" && WebSocket) {
         this.websocket = new WebSocket(this.url);
-        this.websocket.addEventListener("error", () => {});
+        this.websocket.addEventListener("error", e => {
+          console.log(e);
+        });
 
         this.websocket.addEventListener("open", () => {
           this.onOpen();
@@ -73,7 +74,9 @@ export default class IPC {
         });
       } else {
         this.websocket = new NodeWebSocket(this.url);
-        this.websocket.on("error", () => {});
+        this.websocket.on("error", e => {
+          console.log(e);
+        });
 
         this.websocket.on("open", () => {
           this.onOpen();
@@ -115,22 +118,14 @@ export default class IPC {
   }
 
   sendActive() {
-    if (Date.now() - this.lastSentActive < 1000) {
-      return;
-    }
-
     let result = this.send("active", {
       app: this.app,
       id: this.id,
     });
-
-    if (result) {
-      this.lastSentActive = Date.now();
-    }
   }
 
   send(message: string, data: any) {
-    if (!this.connected) {
+    if (!this.connected || !this.websocket || this.websocket!.readyState != 1) {
       return false;
     }
 
