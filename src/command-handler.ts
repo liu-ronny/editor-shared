@@ -33,55 +33,40 @@ export default abstract class BaseCommandHandler {
   }
 
   pasteText(source: string, data: any, text: string) {
-    // if we specify a direction, it means that we want to paste as a line, so add a newline
-    let insertionPoint = data.cursor || 0;
-    let updatedCursor = insertionPoint;
-    if (data.direction && !text.endsWith("\n")) {
+    let cursor = data.cursor || 0;
+    let cursorAdjustment = 0;
+
+    // if we specify a direction, make sure there's a newline
+    if ((data.direction == "above" || data.direction == "below") && !text.endsWith("\n")) {
       text += "\n";
     }
 
-    // paste on a new line if a direction is specified or we're pasting a full line
-    if (text.endsWith("\n") || data.direction) {
-      // default to paste below if there's a newline at the end
-      data.direction = data.direction || "below";
-
-      // for below (the default), move the cursor to the start of the next line
-      if (data.direction === "below") {
-        for (; insertionPoint < source.length; insertionPoint++) {
-          if (source[insertionPoint] === "\n") {
-            insertionPoint++;
-            break;
-          }
+    if (data.direction === "below") {
+      // account for the newline
+      cursorAdjustment--;
+      for (; cursor < source.length; cursor++) {
+        if (source[cursor] === "\n") {
+          cursor++;
+          break;
         }
       }
-
-      // for paste above, go to the start of the current line
-      else if (data.direction === "above") {
-        // if we're at the end of a line, then move the cursor back one, or else we'll paste below
-        if (source[insertionPoint] === "\n" && insertionPoint > 0) {
-          insertionPoint--;
-        }
-
-        for (; insertionPoint >= 0; insertionPoint--) {
-          if (source[insertionPoint] === "\n") {
-            insertionPoint++;
-            break;
-          }
-        }
+    } else if (data.direction === "above") {
+      // if we're at the end of a line, then move the cursor back one, or else we'll paste at the cursor
+      if (source[cursor] === "\n" && cursor > 0) {
+        cursor--;
       }
 
-      updatedCursor = insertionPoint;
-    }
-
-    // move the cursor to the end of the pasted text
-    updatedCursor += text.length;
-    if (text.endsWith("\n")) {
-      updatedCursor--;
+      for (; cursor >= 0; cursor--) {
+        if (source[cursor] === "\n") {
+          cursor++;
+          break;
+        }
+      }
     }
 
     this.updateEditor(
-      source.substring(0, insertionPoint) + text + source.substring(insertionPoint),
-      updatedCursor
+      source.substring(0, cursor) + text + source.substring(cursor),
+      cursor + text.length + cursorAdjustment
     );
   }
 
