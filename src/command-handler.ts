@@ -35,13 +35,17 @@ export default abstract class BaseCommandHandler {
   pasteText(source: string, data: any, text: string) {
     let cursor = data.cursor || 0;
     let cursorAdjustment = 0;
+    let direction = data.direction || "inline";
+    if (!data.direction && text.endsWith("\n")) {
+      direction = "below";
+    }
 
     // if we specify a direction, make sure there's a newline
-    if ((data.direction == "above" || data.direction == "below") && !text.endsWith("\n")) {
+    if ((direction == "above" || direction == "below") && !text.endsWith("\n")) {
       text += "\n";
     }
 
-    if (data.direction === "below") {
+    if (direction === "below") {
       // account for the newline
       cursorAdjustment--;
       for (; cursor < source.length; cursor++) {
@@ -50,7 +54,7 @@ export default abstract class BaseCommandHandler {
           break;
         }
       }
-    } else if (data.direction === "above") {
+    } else if (direction === "above") {
       // if we're at the end of a line, then move the cursor back one, or else we'll paste at the cursor
       if (source[cursor] === "\n" && cursor > 0) {
         cursor--;
