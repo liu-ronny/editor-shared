@@ -12,21 +12,32 @@ export default abstract class BaseCommandHandler {
   abstract select(startRow: number, startColumn: number, endRow: number, endColumn: number): void;
   abstract setSourceAndCursor(before: string, source: string, row: number, column: number): void;
 
-  abstract COMMAND_TYPE_CLOSE_TAB(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_CLOSE_WINDOW(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_COPY(data: any): Promise<any>;
-  abstract COMMAND_TYPE_CREATE_TAB(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_GET_EDITOR_STATE(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_GO_TO_DEFINITION(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_NEXT_TAB(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_PASTE(data: any): Promise<any>;
-  abstract COMMAND_TYPE_PREVIOUS_TAB(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_REDO(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_SAVE(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_SPLIT(data: any): Promise<any>;
-  abstract COMMAND_TYPE_SWITCH_TAB(data: any): Promise<any>;
-  abstract COMMAND_TYPE_UNDO(_data: any): Promise<any>;
-  abstract COMMAND_TYPE_WINDOW(data: any): Promise<any>;
+  abstract async COMMAND_TYPE_CLOSE_TAB(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_CLOSE_WINDOW(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_COPY(data: any): Promise<any>;
+  abstract async COMMAND_TYPE_CREATE_TAB(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_GET_EDITOR_STATE(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_GO_TO_DEFINITION(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_NEXT_TAB(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_PASTE(data: any): Promise<any>;
+  abstract async COMMAND_TYPE_PREVIOUS_TAB(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_REDO(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_SAVE(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_SPLIT(data: any): Promise<any>;
+  abstract async COMMAND_TYPE_SWITCH_TAB(data: any): Promise<any>;
+  abstract async COMMAND_TYPE_UNDO(_data: any): Promise<any>;
+  abstract async COMMAND_TYPE_WINDOW(data: any): Promise<any>;
+
+  async COMMAND_TYPE_DEBUGGER_CONTINUE(_data: any): Promise<any> {}
+  async COMMAND_TYPE_DEBUGGER_INLINE_BREAKPOINT(_data: any): Promise<any> {}
+  async COMMAND_TYPE_DEBUGGER_PAUSE(_data: any): Promise<any> {}
+  async COMMAND_TYPE_DEBUGGER_SHOW_HOVER(_data: any): Promise<any> {}
+  async COMMAND_TYPE_DEBUGGER_START(_data: any): Promise<any> {}
+  async COMMAND_TYPE_DEBUGGER_STEP_INTO(_data: any): Promise<any> {}
+  async COMMAND_TYPE_DEBUGGER_STEP_OUT(_data: any): Promise<any> {}
+  async COMMAND_TYPE_DEBUGGER_STEP_OVER(_data: any): Promise<any> {}
+  async COMMAND_TYPE_DEBUGGER_STOP(_data: any): Promise<any> {}
+  async COMMAND_TYPE_DEBUGGER_TOGGLE_BREAKPOINT(_data: any): Promise<any> {}
 
   constructor(settings: Settings) {
     this.settings = settings;
