@@ -85,11 +85,11 @@ export default abstract class BaseCommandHandler {
     );
   }
 
-  async uiDelay() {
+  async uiDelay(delay: number = 100) {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve();
-      }, 100);
+      }, delay);
     });
   }
 
