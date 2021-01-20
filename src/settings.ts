@@ -62,8 +62,8 @@ export default class Settings {
     this.createIfNotExists(this.systemFile());
     this.createIfNotExists(this.userFile());
 
-    fs.writeFileSync(this.systemFile(), JSON.stringify(this.systemData));
-    fs.writeFileSync(this.userFile(), JSON.stringify(this.userData));
+    fs.writeFileSync(this.systemFile(), JSON.stringify(this.systemData, null, 2));
+    fs.writeFileSync(this.userFile(), JSON.stringify(this.userData, null, 2));
   }
 
   private set(file: string, key: string, value: any) {

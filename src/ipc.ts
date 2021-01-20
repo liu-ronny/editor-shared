@@ -57,7 +57,7 @@ export default class IPC {
     try {
       if (typeof WebSocket !== "undefined" && WebSocket) {
         this.websocket = new WebSocket(this.url);
-        this.websocket.addEventListener("error", e => {
+        this.websocket.addEventListener("error", (e) => {
           console.log(e);
         });
 
@@ -74,7 +74,7 @@ export default class IPC {
         });
       } else {
         this.websocket = new NodeWebSocket(this.url);
-        this.websocket.on("error", e => {
+        this.websocket.on("error", (e) => {
           console.log(e);
         });
 
