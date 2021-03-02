@@ -19,7 +19,6 @@ export default abstract class BaseCommandHandler {
   abstract async COMMAND_TYPE_GET_EDITOR_STATE(_data: any): Promise<any>;
   abstract async COMMAND_TYPE_GO_TO_DEFINITION(_data: any): Promise<any>;
   abstract async COMMAND_TYPE_NEXT_TAB(_data: any): Promise<any>;
-  abstract async COMMAND_TYPE_PASTE(data: any): Promise<any>;
   abstract async COMMAND_TYPE_PREVIOUS_TAB(_data: any): Promise<any>;
   abstract async COMMAND_TYPE_REDO(_data: any): Promise<any>;
   abstract async COMMAND_TYPE_SAVE(_data: any): Promise<any>;
@@ -43,46 +42,26 @@ export default abstract class BaseCommandHandler {
     this.settings = settings;
   }
 
-  pasteText(source: string, data: any, text: string) {
-    let cursor = data.cursor || 0;
-    let cursorAdjustment = 0;
-    let direction = data.direction || "inline";
-    if (!data.direction && text.endsWith("\n")) {
-      direction = "below";
-    }
-
-    // if we specify a direction, make sure there's a newline
-    if ((direction == "above" || direction == "below") && !text.endsWith("\n")) {
-      text += "\n";
-    }
-
-    if (direction === "below") {
-      // account for the newline
-      cursorAdjustment--;
-      for (; cursor < source.length; cursor++) {
-        if (source[cursor] === "\n") {
-          cursor++;
+  filenameFromLanguage(
+    filename: string,
+    language: string,
+    map: { [key: string]: string[] }
+  ): string {
+    if (map[language]) {
+      let matches = false;
+      for (const extension of map[language]) {
+        if (filename.endsWith(`.${extension}`)) {
+          matches = true;
           break;
         }
       }
-    } else if (direction === "above") {
-      // if we're at the end of a line, then move the cursor back one, or else we'll paste at the cursor
-      if (source[cursor] === "\n" && cursor > 0) {
-        cursor--;
-      }
 
-      for (; cursor >= 0; cursor--) {
-        if (source[cursor] === "\n") {
-          cursor++;
-          break;
-        }
+      if (!matches) {
+        filename += `.${map[language][0]}`;
       }
     }
 
-    this.updateEditor(
-      source.substring(0, cursor) + text + source.substring(cursor),
-      cursor + text.length + cursorAdjustment
-    );
+    return filename;
   }
 
   async uiDelay(delay: number = 100) {

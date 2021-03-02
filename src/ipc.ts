@@ -57,9 +57,6 @@ export default class IPC {
     try {
       if (typeof WebSocket !== "undefined" && WebSocket) {
         this.websocket = new WebSocket(this.url);
-        this.websocket.addEventListener("error", (e) => {
-          console.log(e);
-        });
 
         this.websocket.addEventListener("open", () => {
           this.onOpen();
@@ -74,9 +71,6 @@ export default class IPC {
         });
       } else {
         this.websocket = new NodeWebSocket(this.url);
-        this.websocket.on("error", (e) => {
-          console.log(e);
-        });
 
         this.websocket.on("open", () => {
           this.onOpen();
@@ -90,9 +84,7 @@ export default class IPC {
           this.onMessage(message);
         });
       }
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   }
 
   async handle(response: any): Promise<any> {
