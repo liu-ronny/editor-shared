@@ -89,12 +89,10 @@ export default class IPC {
 
   async handle(response: any): Promise<any> {
     let result = null;
-    let handled = false;
     if (response.execute) {
       for (const command of response.execute.commandsList) {
         if (command.type in (this.commandHandler as any)) {
           result = await (this.commandHandler as any)[command.type](command);
-          handled = true;
         }
       }
     }
